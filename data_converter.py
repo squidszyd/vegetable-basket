@@ -1,18 +1,22 @@
 """
     SED data file converter
     [Usage]
-    python data_converter.py --source [datafile.xxx | list-of-file-to-be-converted.txt] --type [data | dt | dtm | pkl | xml]
+    python data_converter.py \
+            --source [datafile.xxx | list-of-file-to-be-converted.txt] \
+            --type [data | dt | dtm | pkl | xml] \
+            --savedir [where to save]
+    [Arguments]
     --source        datafile.xxx (xxx can be data/dt/dtm/pkl/xml) or a list file contains datafile names
     --savetype      the objective type to be converted to
     --savedir       directory to save converted file(s)
 """
 
 import argparse
+import cPickle as pickle
 import os
 import progressbar
 import struct
 import time
-import cPickle as pickle
 
 TYPES = ('.data', '.dt', '.dtm', '.pkl')
 
@@ -63,8 +67,10 @@ def _read_dt(filename):
     with open(filename, 'rb') as f:
         while True:
             raw = f.read(20)
+            if not raw:
+                break
             fid, x1, y1, x2, y2 = struct.unpack('5i', raw)
-            if data[fid] is None:
+            if not data.get(fid):
                 data[fid] = []
             append(data[fid], (1.0, -1, (x1, y1, x2, y2)))
     return data
@@ -75,8 +81,10 @@ def _read_dtm(filename):
     with open(filename, 'rb') as f:
         while True:
             raw = f.read(28)
+            if not raw:
+                break
             fid, conf, classid, x1, y1, x2, y2 = struct.unpack('if5i', raw)
-            if data[fid] is None:
+            if not data.get(fid):
                 data[fid] = []
             append(data[fid], (conf, classid, (x1, y1, x2, y2)))
     return data
@@ -164,6 +172,19 @@ def _cvt2pkl(data, savename):
 def _cvt2xml(data, savename):
     pass
 
+def _insert_empty_list(data):
+    # to make sure data dict contains keys of all frame id(s)
+    assert data is not None, 'input is None'
+    fids = [fid for fid in data.keys()]
+    min_fid, max_fid = min(fids), max(fids)
+    for fid in range(0, min_fid):
+        data[fid] = []
+    for fid in range(min_fid + 1, max_fid):
+        if not data.get(fid):
+            data[fid] = []
+    return data
+    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data file converter')
     parser.add_argument('-s', '--source', help="source file")
@@ -186,7 +207,7 @@ if __name__ == '__main__':
     if ext == '.txt':
         with open(source) as f:
             for line in f.readlines():
-                append(list_of_files, line)
+                append(list_of_files, line[:-1]) # to get rid of \n
     else:
         append(list_of_files, source)
 
@@ -202,7 +223,7 @@ if __name__ == '__main__':
             print "{} has the same type of the type to be coverted, skipped".format(datafile)
             nb_skipped += 1
         else:
-            data = read_from_file(datafile)
+            data = _insert_empty_list(read_from_file(datafile))
             savename = os.path.join(savedir, name + savetype)
             cvt(data, savename) 
         nb_processed += 1
