@@ -7,6 +7,7 @@ The Vegetable-Basket Program (SED data protocal)
 |:----------:|:---------:|
 |FRAME_ID   | **0-based** frame id  [*int32*]    |
 |NUM_OF_BOXES_IN_FRAME  |num of boxes in a frame    [*int32*]  |
+|X1/Y1/X2/Y2|Box coordinate	[*int32*]	|
 |COORDINATE |Box coordinate [x1, x2, y1, y2]   [*4\*int32*]  |
 |CONFIDENCE |Box confidence [*float32*] |
 |CLASS_ID   |Box class [*int32*]    |
@@ -27,11 +28,18 @@ The Vegetable-Basket Program (SED data protocal)
 - [.pkl]    Python dict in which the keys are FRAME_IDs and the values are lists [CONFIDENCE, CLASS_ID, COORDINATE]
 ```
 {
-    0:  [CONFIDENCE, CLASS_ID, COORDINATE]
-    1:  [CONFIDENCE, CLASS_ID, COORDINATE]
+    0:  [(CONFIDENCE, CLASS_ID, COORDINATE), ...]
+    1:  [(CONFIDENCE, CLASS_ID, COORDINATE), ...]
     ...
-    N:  [CONFIDENCE, CLASS_ID, COORDINATE]
+    N:  [(CONFIDENCE, CLASS_ID, COORDINATE), ...]
 }
+```
+Or dict whose keys are FRAME_IDs and values are numpy arrays [X1, Y1, X2, Y2, CONFIDENCE]
+```
+    0:  numpy.ndarray([[X1, Y1, X2, Y2, CONFIDENCE], ...]]
+    1:  numpy.ndarray([[X1, Y1, X2, Y2, CONFIDENCE], ...]]
+    ...
+    N:  numpy.ndarray([[X1, Y1, X2, Y2, CONFIDENCE], ...]]
 ```
 
 .data and .dt are **not** recommended to be used. Use .dtm (C++) and .pkl (Python) instead.

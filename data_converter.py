@@ -9,6 +9,14 @@
     --source        datafile.xxx (xxx can be data/dt/dtm/pkl/xml) or a list file contains datafile names
     --savetype      the objective type to be converted to
     --savedir       directory to save converted file(s)
+
+    Intermediate data are saved in the following format:
+    {
+        '0':    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+        '1':    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+        ...
+        'N-1':  [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+    }
 """
 
 import argparse
