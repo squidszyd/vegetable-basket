@@ -13,6 +13,7 @@
 
 import argparse
 import cPickle as pickle
+import numpy as np
 import os
 import progressbar
 import struct
@@ -91,8 +92,25 @@ def _read_dtm(filename):
 
 def _read_pkl(filename):
     f = open(filename)
-    data = pickle.load(f)
-    return data
+    raw = pickle.load(f)
+    k = next(iter(raw))
+    v = raw[k]
+    if isinstance(v, np.ndarray):
+        data = {}
+        append = list.append
+        for k, v in raw.items():        
+            data[k] = []
+            l = data[k]
+            boxes = v.tolist()
+            for box in boxes:
+                append(l, (box[4], 1, (box[0], box[1], box[2], box[3])))
+        return data
+
+    elif isinstance(v, list):
+        return raw
+
+    else:
+        assert 'Unrecognized format'
 
 def _read_xml(filename):
     pass
@@ -180,7 +198,7 @@ def _insert_empty_list(data):
     for fid in range(0, min_fid):
         data[fid] = []
     for fid in range(min_fid + 1, max_fid):
-        if not data.get(fid):
+        if data.get(fid) is None:
             data[fid] = []
     return data
     
