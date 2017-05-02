@@ -45,5 +45,5 @@ Or dict whose keys are FRAME_IDs and values are numpy arrays [X1, Y1, X2, Y2, CO
 .data and .dt are **not** recommended to be used. Use .dtm (C++) and .pkl (Python) instead.
 To convert from one type to another, call:
 ```
-python data_converter.py --source [datafile.xxx | list-of-file-to-be-converted.txt] --savetype [data | dt | dtm | pkl | xml]
+python data_converter.py --source [datafile.xxx | list-of-file-to-be-converted.txt] --savetype [data | dt | dtm | pkl | xml] --savedir .
 ```
