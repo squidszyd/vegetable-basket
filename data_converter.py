@@ -12,10 +12,10 @@
 
     Intermediate data are saved in the following format:
     {
-        '0':    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
-        '1':    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+        0:    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+        1:    [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
         ...
-        'N-1':  [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
+        N-1:  [(CONFIDENCE, CLASS_ID, (X1, Y1, X2, Y2)), ...]
     }
 """
 
@@ -34,6 +34,8 @@ DATA_INDICES = {
         'CLS' : 1,
         'COORDS' : 2
         }
+
+DEFAULT_CLASS_ID = 0    # if no class id is specified, set to this value
 
 def read_from_file(filename):
     assert os.path.exists(filename), "Cannot find {}".format(filename)
@@ -66,8 +68,8 @@ def _read_data(filename):
             for i in range(num):
                 det = f.read(20)
                 x1, y1, x2, y2, conf = struct.unpack('4if', det)
-                # class_id is set to be -1
-                append(data[fid], (conf, -1, (x1, y1, x2, y2)))
+                # class_id is set to be DEFAULT_CLASS_ID
+                append(data[fid], (conf, DEFAULT_CLASS_ID, (x1, y1, x2, y2)))
     return data
 
 def _read_dt(filename):
@@ -81,7 +83,7 @@ def _read_dt(filename):
             fid, x1, y1, x2, y2 = struct.unpack('5i', raw)
             if not data.get(fid):
                 data[fid] = []
-            append(data[fid], (1.0, -1, (x1, y1, x2, y2)))
+            append(data[fid], (1.0, DEFAULT_CLASS_ID, (x1, y1, x2, y2)))
     return data
 
 def _read_dtm(filename):
@@ -111,7 +113,7 @@ def _read_pkl(filename):
             l = data[k]
             boxes = v.tolist()
             for box in boxes:
-                append(l, (box[4], 1, (box[0], box[1], box[2], box[3])))
+                append(l, (box[4], DEFAULT_CLASS_ID, (box[0], box[1], box[2], box[3])))
         return data
 
     elif isinstance(v, list):
